@@ -25,14 +25,14 @@ class Fetcher:
         self.sock = socket.socket()
         self.sock.setblocking(False)
         try:
-            self.sock.connect(('segmentfault.com', 80))
+            self.sock.connect(('www.jianshu.com', 80))
         except BlockingIOError:
             pass
         selector.register(self.sock.fileno(), EVENT_WRITE, self.connected)
 
     def connected(self, key, mask):
         selector.unregister(key.fd)
-        get = 'GET {} HTTP/1.0\r\nHost: segmentfault.com\r\n\r\n'.format(self.url)
+        get = 'GET {} HTTP/1.0\r\nHost: www.jianshu.com\r\n\r\n'.format(self.url)
         self.sock.send(get.encode('ascii'))
         selector.register(key.fd, EVENT_READ, self.read_response)
 
@@ -43,7 +43,6 @@ class Fetcher:
         if chunk:
             self.response += chunk
         else:
-            print(self.response)
             selector.unregister(key.fd)
             links = self.parse_links()
             for link in links.difference(seen_urls):
@@ -74,7 +73,7 @@ class Fetcher:
             if parts.scheme not in ('', 'http', 'https'):
                 continue
             host, port = urllib.parse.splitport(parts.netloc)
-            if host and host.lower() not in ('segmentfault.com', 'www.segmentfault.com'):
+            if host and host.lower() not in ('jianshu.com', 'www.jianshu.com'):
                 continue
             defragmented, frag = urllib.parse.urldefrag(parts.path)
             links.add(defragmented)
